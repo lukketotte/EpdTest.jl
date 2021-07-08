@@ -1,7 +1,6 @@
 ###
 ### Functions for Epd based tests
 ###
-
 function L(y::Real, μ::Real, σ::Real, p::Real)
     gamma(1 + 1/p) * abs(y - μ) / σ
 end
