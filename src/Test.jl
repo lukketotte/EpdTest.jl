@@ -1,23 +1,23 @@
 ###
 ### Functions for Epd based tests
 ###
-function L(y::Real, μ::Real, σ::Real, p::Real)
-    gamma(1 + 1/p) * abs(y - μ) / σ
+function _L!(r::AbstractArray{T}, y::AbstractArray{T}, μ::T, σ::T, p::T) where {T <: Real}
+    for i in 1:length(y)
+        @inbounds r[i] = gamma(1 + 1/p) * abs(y[i] - μ) / σ
+    end
+    r
 end
 
-# score functions wrt shape
-function S(y::Real, μ::Real, σ::Real, p::Real)
-    ℓ = L(y, μ, σ, p)
-    S_p = ℓ^p * (1/p * digamma(1 + 1/p) - log(ℓ))
-    S_σ = p/σ * ℓ^p - 1/σ
-    return S_p, S_σ
+function logOrZero(x::Real)
+    x == 0. ? 0 : log(x)
 end
 
-function S(y::Array{<:Real, 1}, μ::Real, σ::Real, p::Real)
-    ℓ = L.(y, μ, σ, p)
-    S_p = ℓ.^p .* (1/p * digamma(1 + 1/p) .- log.(ℓ))
-    S_σ = p/σ .* ℓ.^p .- 1/σ
-    return S_p, S_σ
+function effScore(y::AbstractArray{<:T}, μ::T, σ::T, p::T) where {T <: Real}
+    r = Vector{T}(undef, length(y))
+    _L!(r, y, μ, σ, p)
+    Sₚ = r.^p .* (1/p * digamma(1 + 1/p) .- logOrZero.(r))
+    Sₛ = p/σ .* r.^p .- 1/σ
+    (Sₚ, Sₛ)
 end
 
 """
@@ -35,9 +35,9 @@ S_{n,p}^*
 - `σ::Real`: scale parameter, σ > 0
 - `p::Real`: shape parameter, p > 0
 """
-function epdTest(y::Array{<:Real, 1}, μ::Real, σ::Real, p::Real)
+function epdTest(y::AbstractArray{<:Real}, μ::Real, σ::Real, p::Real)
     n = length(y)
-    S_p, S_σ = S(y, μ, σ, p)
+    S_p, S_σ = effScore(y, μ, σ, p)
     return sum(S_p .+ σ / 4 .* S_σ) / √(n*((p+1)/p^4 * trigamma((p+1)/p) - 1/p^3))
 end
 
