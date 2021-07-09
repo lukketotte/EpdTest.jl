@@ -105,5 +105,5 @@ end
 ###########
 # EXPORTS #
 ###########
-export epdTest, Epd, simSize
+export epdTest, Epd, simSize, BivariateNormalTest
 end
