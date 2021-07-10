@@ -39,7 +39,7 @@ MvEpd(d::Int, σ::Real, p::Real) = MvEpd(Zeros{typeof(σ)}(d), σ, p)
 
 ### Basic statistics
 length(d::MvEpd) = length(d.μ)
-mean(d::MvEpd) = d.μ
+location(d::MvEpd) = d.μ
 params(d::MvEpd) = (d.μ, d.Σ, d.p)
 @inline partype(d::MvEpd{T}) where {T<:Real} = T
 Base.eltype(::Type{<:MvEpd{T}}) where {T} = T

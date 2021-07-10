@@ -14,7 +14,6 @@ Simulates size for the EPD test for special cases p = 1 or 2
 function simSize(d::D, n::N, nsim::N, type::AbstractString; twoSided::Bool = true, α::Real = 0.05) where
     {D<:ContinuousUnivariateDistribution, N <: Integer}
     sims = zeros(nsim)
-
     if lowercase(type) === "normal"
         z = twoSided ? quantile(Normal(), 1-α/2) : quantile(Normal(), 1-α)
     elseif lowercase(type) === "laplace"
@@ -22,11 +21,9 @@ function simSize(d::D, n::N, nsim::N, type::AbstractString; twoSided::Bool = tru
     else
         throw(DomainError(type, "type must be normal or laplace"))
     end
-
     for i in 1:nsim
         simSizeInner!(sims, rand(d, n), z, i, n, twoSided, type)
     end
-
     return mean(sims)
 end
 
