@@ -5,4 +5,15 @@
 
 **EpdTest.jl** is a Julia library used for the results of PAPER
 
-## Getting Started
+## Installation
+Through the `pkg` REPL mode by typing
+```
+] add "https://github.com/lukketotte/EpdTest.jl"
+```
+
+## Recreating results
+```julia
+using Optim
+rosenbrock(x) =  (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
+result = optimize(rosenbrock, zeros(2), BFGS())
+```

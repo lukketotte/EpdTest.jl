@@ -47,15 +47,12 @@ function simSize(d::D, n::N, nsim::N, p::Real; twoSided::Bool = true, α::Real =
     {D<:ContinuousUnivariateDistribution, N <: Integer}
     p > 0 || throw(DomainError(p, "p must be positive"))
     ((α > 0) && (α < 1)) || throw(DomainError(α, "α must be on (0,1)"))
-
     sims = zeros(nsim)
     z = twoSided ? quantile(Normal(), 1-α/2) : quantile(Normal(), 1-α)
-
     for i in 1:nsim
         simSizeInner!(sims, rand(d, n), z, i, n, twoSided, p)
     end
-
-    return sims[sims .!== NaN] |> mean
+    sims[sims .!== NaN] |> mean
 end
 
 

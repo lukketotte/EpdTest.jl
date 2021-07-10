@@ -7,8 +7,6 @@ struct MvEpd{T <: Real, Cov<:AbstractPDMat, Mean<:AbstractVector, shape<:Real} <
     p::shape
 end
 
-const MultivariateEpd = MvEpd # for backward comp
-
 ### Construction
 function MvEpd(μ::AbstractVector{T}, Σ::AbstractPDMat{T}, p::T) where {T <: Real}
     dim(Σ) == length(μ) || throw(DimensionMismatch("The dimensions of mu and Sigma are inconsistent."))
