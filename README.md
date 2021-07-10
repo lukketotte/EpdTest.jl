@@ -12,9 +12,32 @@ Through the `pkg` REPL mode by typing
 ```
 
 ## Recreating results
-Using parallell computation
+To recreate the second column of Figure 3
 ```julia
-using Optim
-rosenbrock(x) =  (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
-result = optimize(rosenbrock, zeros(2), BFGS())
+using Distributed
+@everywhere using EpdTest, DataFrames
+
+N, nsim = ([20, 50, 100, 200], 1000);
+p  = range(1., 4, length = 20);
+
+simDat = DataFrame(n = repeat(N, inner = length(p)),
+                   p = repeat(p, length(N)), value = 0.0)
+
+# row 1
+for i in 1:length(N)
+    β = pmap(kurt -> simSize(Epd(0.0, 1.0, kurt), N[i], nsim, 1), p)
+    simDat[simDat.n .== N[i], :value] = β
+end
+
+# row 2
+for i in 1:length(N)
+    β = pmap(kurt -> simSize(Epd(0.0, 1.0, kurt), N[i], nsim, "Normal"), p)
+    simDat[simDat.n .== N[i], :value] = β
+end
+
+# row 3
+for i in 1:length(N)
+    β = pmap(kurt -> simSize(Epd(0.0, 1.0, kurt), N[i], nsim, 3.), p)
+    simDat[simDat.n .== N[i], :value] = β
+end
 ```
