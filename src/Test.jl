@@ -41,6 +41,22 @@ function epdTest(y::AbstractArray{<:Real}, μ::Real, σ::Real, p::Real)
     return sum(S_p .+ σ / 4 .* S_σ) / √(n*((p+1)/p^4 * trigamma((p+1)/p) - 1/p^3))
 end
 
+function loglikEPD(θ, p, x) where {T <: Real}
+    μ, σ = θ
+    -log.(pdf.(Epd(μ, exp(σ), p), x)) |> sum
+end
+
+function MLE(θ::AbstractVector{T}, p::T, x::Array{T, 1}) where {T <: Real}
+    length(θ) === 2 || throw(ArgumentError("θ not of length 2"))
+    func = TwiceDifferentiable(vars -> loglikEPD(vars, p, x), ones(2), autodiff =:forward)
+    optimum = optimize(func, θ)
+    Optim.converged(optimum) || throw(ConvergenceError("Optimizer did not converge"))
+    mle = Optim.minimizer(optimum)
+    mle[2] = exp(mle[2])
+    mle
+end
+
+
 """
     BivariateNormalTest(X, μ, Σ)
 
