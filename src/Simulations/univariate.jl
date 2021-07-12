@@ -40,7 +40,7 @@ Simulates size for the EPD test for general p.
 - `twoSided::Bool`: true for twosided test, false otherwise. Always twosided for laplace.
 - `α::Real`: size of the test.
 """
-function simSize(d::D, n::N, nsim::N, p::Real; twoSided::Bool = true, α::Real = 0.05, χ = false) where
+function simSize(d::D, n::N, nsim::N, p::Real; twoSided::Bool = true, α::Real = 0.05, χ::Bool = false) where
     {D<:ContinuousUnivariateDistribution, N <: Integer}
     p > 0 || throw(DomainError(p, "p must be positive"))
     ((α > 0) && (α < 1)) || throw(DomainError(α, "α must be on (0,1)"))
@@ -75,7 +75,7 @@ function simSizeInner!(sims::Array{<:Real, 1}, y::Array{<:Real, 1}, z::Real, i::
 end
 
 function simSizeInner!(sims::Array{<:Real, 1}, y::Array{<:Real, 1}, z::Real, i::Integer, n::Integer,
-    twoSided::Bool, p::Real, χ::Boolean)
+    twoSided::Bool, p::Real, χ::Bool)
     μ, σ = try
             MLE([0, log(2.)], p, y)
         catch err
