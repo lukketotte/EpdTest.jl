@@ -71,3 +71,27 @@ for i ∈ 1:length(N)
     simDat[simDat.n .== N[i], :value] = β
 end
 ```
+The likelihood ratio test based on the empirical likelihood is not part of the package, but the test can be computed as below.
+```julia
+function empLik(x::AbstractVector{<:Real}, m::Integer)
+    n = length(x)
+    m <= √n || throw(DomainError(m, "m must be < √n"))
+    sort!(x)
+    p = 1
+    for i ∈ 1:n
+        p *= (2*m) / (n*(x[minimum([i+m, n])] - x[maximum([i-m, 1])]) *
+            pdf(Laplace(median(x), mean(abs.(x .- median(x)))), x[i]))
+    end
+    p
+end
+
+function empLikTest(x::AbstractVector{<:Real})
+    n = length(x)
+    m = Integer(floor(√n))
+    alt = zeros(m)
+    for i ∈ 1:m
+        alt[i] = empLik(x, i)
+    end
+    log(minimum(alt))
+end
+```
