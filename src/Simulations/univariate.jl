@@ -1,13 +1,3 @@
-using SpecialFunctions, Distributions, LinearAlgebra
-include("Distributions.jl")
-using .EPD
-include("Test.jl")
-
-p = 3.
-y = rand(Epd(0.,1.,p), 1000)
-μ, σ = MLE([0, log(2.)], p, y)
-epdTest(y, μ, p^(1/p) * gamma(1 + 1/p) * σ, p)
-
 """
     simSize(d, n, nsim, type; twoSided, α)
 
@@ -24,7 +14,6 @@ Simulates size for the EPD test for special cases p = 1 or 2
 function simSize(d::D, n::N, nsim::N, type::AbstractString; twoSided::Bool = true, α::Real = 0.05) where
     {D<:ContinuousUnivariateDistribution, N <: Integer}
     sims = zeros(nsim)
-
     if lowercase(type) === "normal"
         z = twoSided ? quantile(Normal(), 1-α/2) : quantile(Normal(), 1-α)
     elseif lowercase(type) === "laplace"
@@ -32,11 +21,9 @@ function simSize(d::D, n::N, nsim::N, type::AbstractString; twoSided::Bool = tru
     else
         throw(DomainError(type, "type must be normal or laplace"))
     end
-
     for i in 1:nsim
         simSizeInner!(sims, rand(d, n), z, i, n, twoSided, type)
     end
-
     return mean(sims)
 end
 
@@ -53,19 +40,20 @@ Simulates size for the EPD test for general p.
 - `twoSided::Bool`: true for twosided test, false otherwise. Always twosided for laplace.
 - `α::Real`: size of the test.
 """
-function simSize(d::D, n::N, nsim::N, p::Real; twoSided::Bool = true, α::Real = 0.05) where
+function simSize(d::D, n::N, nsim::N, p::Real; twoSided::Bool = true, α::Real = 0.05, χ::Bool = false) where
     {D<:ContinuousUnivariateDistribution, N <: Integer}
     p > 0 || throw(DomainError(p, "p must be positive"))
     ((α > 0) && (α < 1)) || throw(DomainError(α, "α must be on (0,1)"))
-
     sims = zeros(nsim)
-    z = twoSided ? quantile(Normal(), 1-α/2) : quantile(Normal(), 1-α)
-
-    for i in 1:nsim
-        simSizeInner!(sims, rand(d, n), z, i, n, twoSided, p)
+    if χ
+        z = quantile(Chisq(1), 1-α)
+    else
+        z = twoSided ? quantile(Normal(), 1-α/2) : quantile(Normal(), 1-α)
     end
-
-    return sims[sims .!== NaN] |> mean
+    for i in 1:nsim
+        simSizeInner!(sims, rand(d, n), z, i, n, twoSided, p, χ)
+    end
+    sims[sims .!== NaN] |> mean
 end
 
 
@@ -87,18 +75,22 @@ function simSizeInner!(sims::Array{<:Real, 1}, y::Array{<:Real, 1}, z::Real, i::
 end
 
 function simSizeInner!(sims::Array{<:Real, 1}, y::Array{<:Real, 1}, z::Real, i::Integer, n::Integer,
-    twoSided::Bool, p::Real)
+    twoSided::Bool, p::Real, χ::Bool)
     μ, σ = try
             MLE([0, log(2.)], p, y)
         catch err
             NaN, NaN
         end
-    if μ === NaN
+    if μ == NaN
         sims[i] = NaN
     else
         t = epdTest(y, μ, p^(1/p) * gamma(1 + 1/p) * σ, p)
-        if (twoSided ? abs(t) : t) > z
-            sims[i] = 1
+        if χ
+            sims[i] = t^2 > z ? 1 : 0
+        else
+            if (twoSided ? abs(t) : t) > z
+                sims[i] = 1
+            end
         end
     end
     nothing
