@@ -97,7 +97,8 @@ end
 ```
 
 To recreate the applications for the bivariate normal case with 50 observations
-subsetted from the weather data.
+subsetted from the weather data. To recreate parts of the results in Dörr et. al. (2021),
+the subsample is selected through R using `RCall` in Julia.
 ```Julia
 # From RandomFields package in R
 X = load("weather.csv") |> DataFrame
@@ -126,4 +127,4 @@ mean(sims .> DEHU(X[idx,:]))
 
 # References
 * Dörr, P., Ebner, B. and Henze, N. A new test of multivariate normality by
-a double estimation in a characterizing pde. ~Metrika~, 84(3):401-427, 2021.
+a double estimation in a characterizing pde. *Metrika*, 84(3):401-427, 2021.
