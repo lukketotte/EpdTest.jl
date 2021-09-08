@@ -95,3 +95,55 @@ function BivariateNormalTest(X::Array{<:Real, 2})
     end
     return √n * (1 + digamma(1) + log(2) - 0.5 * mean(u.* log.(u))) / √((π^2 - 9)/3)
 end
+
+function standard(X::AbstractMatrix{<:Real})
+    n,d = size(X)
+    S = inv(sqrt((n-1)/n * cov(X)))
+    (S*(X .- mean(X, dims = 1))')'
+end
+
+"""
+    DEHU(X)
+
+Computes the test of multivariate normality based on the characteristic function
+
+# Arguments
+- `X::AbstractMatrix{<:Real}`: data, n × p
+- `a::Real`: parameter > 0
+"""
+function DEHU(X::AbstractMatrix{<:Real}, a::Real=1)
+    n,d = size(X)
+    n > d || throw(ArgumentError("Rows of X must be larger than columns"))
+    X = standard(X)
+    Djk = X * X'
+    Rquad = diag(Djk)
+    # not sure how to do this the best way
+    Dj = zeros(n,n)
+    for i in 1:n
+        Dj[:, i] = Rquad
+    end
+    Hilf = Dj - 2 .*Djk+Dj'
+
+    Y=(Rquad*Rquad' - (Dj+Dj').*(Hilf.+2*d*a*(2*a-1))/(4*a^2)+
+        (16*d^2*a^3*(a-1)+4*d*(d+2)*a^2 .+(8*d*a^2-(8+4*d)*a).*Hilf+Hilf.^2)/(16*a^4)).*exp.(-Hilf/(4*a))
+    ret = (π/a)^(d/2) * sum(Y) / n
+    ret*d^(-2) * (a/π)^(d/2)
+end
+
+"""
+    JB(X)
+
+Computes the Jarque-Bera test of Mardia
+# Arguments
+- `X::AbstractMatrix{<:Real}`: data, n × p
+"""
+function JB(X::AbstractMatrix{<:Real})
+    n,p = size(X)
+    μ = reshape(sum(X, dims = 1)./n, 2)
+    S = cov(X)^(-1)
+    u = zeros(n)
+    for i in 1:n
+        u[i] = dot((X[i,:] - μ)' * S, (X[i,:] - μ))[1,1]
+    end
+    √(n/64) * (mean(u.^2) - 8)
+end

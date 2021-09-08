@@ -14,6 +14,6 @@ include("Distributions/multivariate.jl")
 include("Distributions/univariate.jl")
 include("Simulations/univariate.jl")
 
-export epdTest, Epd, simSize, BivariateNormalTest, MvEpd
+export epdTest, Epd, simSize, BivariateNormalTest, MvEpd, JB, DEHU
 
 end
