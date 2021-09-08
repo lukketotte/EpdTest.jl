@@ -98,8 +98,8 @@ end
 
 To recreate the applications for the bivariate normal case with 50 observations
 subsetted from the weather data
-
 ```Julia
+# From RandomFields package in R
 X = load("weather.csv") |> DataFrame
 X = Matrix(X)
 
