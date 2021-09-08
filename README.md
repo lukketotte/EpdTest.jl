@@ -71,7 +71,7 @@ for i ∈ 1:length(N)
     simDat[simDat.n .== N[i], :value] = β
 end
 ```
-The likelihood ratio test based on the empirical likelihood is not part of the package, but the test can be computed as below.
+The likelihood ratio test based on the empirical likelihood is not part of the package, but the test together with code for Figure 5 is
 ```julia
 function empLik(x::AbstractVector{<:Real}, m::Integer)
     n = length(x)
@@ -94,11 +94,8 @@ function empLikTest(x::AbstractVector{<:Real})
     end
     log(minimum(alt))
 end
-```
-To recreate the part of Figure 5 corresponding to $`\log(Z_{emp})`$
-```Julia
-simDat = DataFrame(n = repeat(N, inner = length(p)), p = repeat(p, length(N)), value = 0.0)
 
+simDat = DataFrame(n = repeat(N, inner = length(ν)), df = repeat(ν, length(N)), value = 0.0)
 crit = [7.662, 9.213, 10.478, 11.616]
 
 for i in 1:length(N)
