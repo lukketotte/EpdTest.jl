@@ -95,6 +95,17 @@ function empLikTest(x::AbstractVector{<:Real})
     log(minimum(alt))
 end
 ```
+To recreate the part of Figure 5 corresponding to $\log(Z_{emp})$
+```Julia
+simDat = DataFrame(n = repeat(N, inner = length(p)), p = repeat(p, length(N)), value = 0.0)
+
+crit = [7.662, 9.213, 10.478, 11.616]
+
+for i in 1:length(N)
+    β = pmap(df -> simSizeEmpLap(TDist(df), N[i], 50000, crit[i]), ν)
+    simDat[simDat.n .== N[i], :value] = β
+end
+```
 
 To recreate the applications for the bivariate normal case with 50 observations
 subsetted from the weather data. To recreate parts of the results in Dörr et. al. (2021),
