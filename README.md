@@ -114,12 +114,12 @@ idx = sample(1:157, 50)
 N = 10000
 sim(n) = reshape(rand(MvNormal([0,0], diagm([1., 1.])), n), n, 2)
 
-simsBiv = [BivariateNormalTest(sim(50))^2 for i in 1:N]
-mean(simsBiv .> BivariateNormalTest(X[idx,:])^2)
+sims = [BivariateNormalTest(sim(50))^2 for i in 1:N]
+mean(sims .> BivariateNormalTest(X[idx,:])^2)
 
-simsBiv = [JB(sim(50))^2 for i in 1:N]
-mean(simsBiv .> JB(X[idx,:])^2)
+sims = [JB(sim(50))^2 for i in 1:N]
+mean(sims .> JB(X[idx,:])^2)
 
-simsBiv = [DEHU(sim(50)) for i in 1:N]
-mean(simsBiv .> DEHU(X[idx,:]))
+sims = [DEHU(sim(50)) for i in 1:N]
+mean(sims .> DEHU(X[idx,:]))
 ```
