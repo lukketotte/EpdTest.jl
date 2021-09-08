@@ -97,7 +97,7 @@ end
 ```
 
 To recreate the applications for the bivariate normal case with 50 observations
-subsetted from the weather data
+subsetted from the weather data.
 ```Julia
 # From RandomFields package in R
 X = load("weather.csv") |> DataFrame
@@ -123,3 +123,7 @@ mean(sims .> JB(X[idx,:])^2)
 sims = [DEHU(sim(50)) for i in 1:N]
 mean(sims .> DEHU(X[idx,:]))
 ```
+
+# References
+* Dörr, P., Ebner, B. and Henze, N. A new test of multivariate normality by
+a double estimation in a characterizing pde. ~Metrika~, 84(3):401-427, 2021.
