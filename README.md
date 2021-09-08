@@ -95,3 +95,31 @@ function empLikTest(x::AbstractVector{<:Real})
     log(minimum(alt))
 end
 ```
+
+To recreate the applications for the bivariate normal case with 50 observations
+subsetted from the weather data
+
+```Julia
+X = load("weather.csv") |> DataFrame
+X = Matrix(X)
+
+# Requires the RCall package
+# gives the same indeces as Ref
+idx = RCall.rcopy(R"""
+RNGkind(sample.kind = "Rounding")
+set.seed(0721)
+idx = sample(1:157, 50)
+""")
+
+N = 10000
+sim(n) = reshape(rand(MvNormal([0,0], diagm([1., 1.])), n), n, 2)
+
+simsBiv = [BivariateNormalTest(sim(50))^2 for i in 1:N]
+mean(simsBiv .> BivariateNormalTest(X[idx,:])^2)
+
+simsBiv = [JB(sim(50))^2 for i in 1:N]
+mean(simsBiv .> JB(X[idx,:])^2)
+
+simsBiv = [DEHU(sim(50)) for i in 1:N]
+mean(simsBiv .> DEHU(X[idx,:]))
+```
