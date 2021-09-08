@@ -95,7 +95,7 @@ function empLikTest(x::AbstractVector{<:Real})
     log(minimum(alt))
 end
 ```
-To recreate the part of Figure 5 corresponding to $\log(Z_{emp})$
+To recreate the part of Figure 5 corresponding to $`\log(Z_{emp})`$
 ```Julia
 simDat = DataFrame(n = repeat(N, inner = length(p)), p = repeat(p, length(N)), value = 0.0)
 
