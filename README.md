@@ -95,6 +95,16 @@ function empLikTest(x::AbstractVector{<:Real})
     log(minimum(alt))
 end
 
+function simSizeEmpLap(d::D, n::N, nsim::N, critical::T) where
+    {D <: ContinuousUnivariateDistribution, N <: Integer, T<: Real}
+    sims = [0. for x in 1:nsim]
+    for i in 1:nsim
+        t = empLikTest(rand(d, n))
+        sims[i] = abs(t) >= critical ? 1 : 0
+    end
+    mean(sims)
+end
+
 simDat = DataFrame(n = repeat(N, inner = length(ν)), df = repeat(ν, length(N)), value = 0.0)
 crit = [7.662, 9.213, 10.478, 11.616]
 
